@@ -9,20 +9,20 @@ def transitionProbabilities(n):
 	def w(u):
 		if tuple(u) == (0,0):
 			return {e_right: .5, e_down: .5}
-		elif tuple(u) == (0,n-1):
-			return {e_left: .5, e_down: .5}
 		elif tuple(u) == (n-1,0):
+			return {e_left: .5, e_down: .5}
+		elif tuple(u) == (0,n-1):
 			return {e_right: .5, e_up: .5}
 		elif tuple(u) == (n-1,n-1):
 			return {e_left: .5, e_up: .5}
 		elif u[0] == 0:
-			return {e_right: 1.0/3, e_left: 1.0/3, e_down: 1.0/3}
-		elif u[0] == n-1:
-			return {e_right: 1.0/3, e_left: 1.0/3, e_up: 1.0/3}
-		elif u[1] == 0:
 			return {e_right: 1.0/3, e_up: 1.0/3, e_down: 1.0/3}
-		elif u[1] == n-1:
+		elif u[0] == n-1:
 			return {e_left: 1.0/3, e_up: 1.0/3, e_down: 1.0/3}
+		elif u[1] == 0:
+			return {e_right: 1.0/3, e_left: 1.0/3, e_down: 1.0/3}
+		elif u[1] == n-1:
+			return {e_right: 1.0/3, e_left: 1.0/3, e_up: 1.0/3}
 		else:
 			return {e_right: .25, e_left: .25, e_up: .25, e_down: .25}
 	return w
@@ -37,7 +37,7 @@ def latticeIndices(n):
 	V = []
 	for i in range(n):
 		for j in range(n):
-			V.append(np.array([i,j]))
+			V.append(np.array([j,i]))
 	return V
 
 def transitionMatrix(n):
@@ -48,3 +48,4 @@ def transitionMatrix(n):
 		for j, v in enumerate(V):
 			P[i,j] = p(w,u,v)
 	return P
+
