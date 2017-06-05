@@ -49,3 +49,14 @@ def transitionMatrix(n):
 			P[i,j] = p(w,u,v)
 	return P
 
+if __name__ == '__main__':
+	n = 20
+	P = transitionMatrix(n)
+	I = np.identity(n**2)
+	one = np.ones([1,n**2])
+	p = np.dot(one, P)
+	A = (I-P).transpose()
+	Adag = np.linalg.pinv(A)
+	b = (one - p).transpose()
+	diff = np.dot(A,np.dot(Adag,b)) - b
+	print(np.max(np.abs(diff)))
