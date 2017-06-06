@@ -25,7 +25,7 @@ def transitionProbabilities(n):
 		elif u[1] == n-1:
 			return {e_right: 1.0/3, e_left: 1.0/3, e_up: 1.0/3}
 		else:
-			return {e_right: .25, e_left: .25, e_up: .25, e_down: .25}
+			return {e_right: .26, e_left: .24, e_up: .25, e_down: .25}
 	return w
 
 def p(w,u,v):
@@ -56,7 +56,7 @@ def showHeatMap(matrix):
 
 if __name__ == '__main__':
 	n = 20
-	s = 0.7
+	s = 0.5
 	P = transitionMatrix(n)
 	I = np.identity(n**2)
 	one = np.ones([1,n**2])
@@ -67,6 +67,6 @@ if __name__ == '__main__':
 	diff = np.dot(A,np.dot(Adag,b)) - b
 	print(np.max(np.abs(diff)))
 	y = s * one.transpose()
-	d = np.dot(Adag,b) + np.dot(I - np.dot(Adag,A), y)
+	d = (np.dot(Adag,b) + np.dot(I - np.dot(Adag,A), y)).transpose()
 	print(d)
 	showHeatMap(np.reshape(d,(n,n)))
