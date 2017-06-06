@@ -51,6 +51,7 @@ def transitionMatrix(n):
 
 if __name__ == '__main__':
 	n = 20
+	s = 0.7
 	P = transitionMatrix(n)
 	I = np.identity(n**2)
 	one = np.ones([1,n**2])
@@ -60,3 +61,6 @@ if __name__ == '__main__':
 	b = (one - p).transpose()
 	diff = np.dot(A,np.dot(Adag,b)) - b
 	print(np.max(np.abs(diff)))
+	y = s * one.transpose()
+	d = np.dot(Adag,b) + np.dot(I - np.dot(Adag,A), y)
+	print(d)
