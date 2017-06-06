@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 e_right = (1,0)
 e_left = (-1,0)
@@ -49,6 +50,10 @@ def transitionMatrix(n):
 			P[i,j] = p(w,u,v)
 	return P
 
+def showHeatMap(matrix):
+	plt.imshow(matrix, cmap='hot', interpolation='nearest')
+	plt.show()
+
 if __name__ == '__main__':
 	n = 20
 	s = 0.7
@@ -64,3 +69,4 @@ if __name__ == '__main__':
 	y = s * one.transpose()
 	d = np.dot(Adag,b) + np.dot(I - np.dot(Adag,A), y)
 	print(d)
+	showHeatMap(np.reshape(d,(n,n)))
