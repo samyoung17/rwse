@@ -51,7 +51,7 @@ def transitionMatrix(n):
 	return P
 
 def showHeatMap(matrix):
-	plt.imshow(matrix, cmap='hot', interpolation='nearest')
+	plt.imshow(matrix, cmap='gray', interpolation='nearest', vmin=0)
 	plt.show()
 
 def solveSingularSystem(A,b,y):
@@ -63,12 +63,15 @@ def solveSingularSystem(A,b,y):
 		raise ValueError('System has no solution')
 	return np.dot(Adag,b) + np.dot(I - np.dot(Adag,A), y)
 
+def solveHomogeneousSystem(A, eps=1e-15):
+    u, s, vh = np.linalg.svd(A)
+    null_space = np.compress(s <= eps, vh, axis=0)
+    return null_space.T
 
-def calculateStickinessForFlatDistribution(n):
+def stickinessForFlatDistribution(P):
+	I = np.identity(P.shape[0])
 	s = 0.6
-	P = transitionMatrix(n)
-	I = np.identity(n**2)
-	one = np.ones([1,n**2])
+	one = np.ones([1,P.shape[0]])
 	p = np.dot(one, P)
 	A = (I-P).transpose()
 	b = (one - p).transpose()
@@ -77,5 +80,24 @@ def calculateStickinessForFlatDistribution(n):
 	return d
 
 def testStickiness(n):
-	d = calculateStickinessForFlatDistribution(n)
+	P = transitionMatrix(n)
+	d = stickinessForFlatDistribution(P)
 	showHeatMap(np.reshape(d,(n,n)))
+
+def stationaryDistribution(P,d):
+	I = np.identity(P.shape[0])
+	D = np.diagflat(d)
+	A = (np.dot(I-D, P) + D - I).transpose()
+	return solveHomogeneousSystem(A).transpose()
+
+def testStationaryDistribution(n):
+	P = transitionMatrix(n)
+	d = np.ones([1,n**2])/2
+	x = stationaryDistribution(P,d)
+	showHeatMap(np.reshape(x,(n,n)))
+
+def checkStickinessSolution(n):
+	P = transitionMatrix(n)
+	d = stickinessForFlatDistribution(P)
+	x = stationaryDistribution(P,d)
+	showHeatMap(np.reshape(x,(n,n)))
