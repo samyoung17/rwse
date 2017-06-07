@@ -54,19 +54,28 @@ def showHeatMap(matrix):
 	plt.imshow(matrix, cmap='hot', interpolation='nearest')
 	plt.show()
 
-if __name__ == '__main__':
-	n = 20
-	s = 0.5
+def solveSingularSystem(A,b,y):
+	tolerance = 1E-10
+	I = np.identity(len(b))
+	Adag = np.linalg.pinv(A)
+	diff = np.dot(A,np.dot(Adag,b)) - b
+	if np.max(np.abs(diff)) > tolerance:
+		raise ValueError('System has no solution')
+	return np.dot(Adag,b) + np.dot(I - np.dot(Adag,A), y)
+
+
+def calculateStickinessForFlatDistribution(n):
+	s = 0.6
 	P = transitionMatrix(n)
 	I = np.identity(n**2)
 	one = np.ones([1,n**2])
 	p = np.dot(one, P)
 	A = (I-P).transpose()
-	Adag = np.linalg.pinv(A)
 	b = (one - p).transpose()
-	diff = np.dot(A,np.dot(Adag,b)) - b
-	print(np.max(np.abs(diff)))
 	y = s * one.transpose()
-	d = (np.dot(Adag,b) + np.dot(I - np.dot(Adag,A), y)).transpose()
-	print(d)
+	d = solveSingularSystem(A,b,y).transpose()
+	return d
+
+def testStickiness(n):
+	d = calculateStickinessForFlatDistribution(n)
 	showHeatMap(np.reshape(d,(n,n)))
