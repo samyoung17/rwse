@@ -50,54 +50,48 @@ def transitionMatrix(n):
 			P[i,j] = p(w,u,v)
 	return P
 
-def showHeatMap(matrix):
+def showHeatMap(matrix, title):
 	plt.imshow(matrix, cmap='gray', interpolation='nearest', vmin=0)
+	plt.title(title)
 	plt.show()
 
-def solveSingularSystem(A,b,y):
-	tolerance = 1E-10
-	I = np.identity(len(b))
-	Adag = np.linalg.pinv(A)
-	diff = np.dot(A,np.dot(Adag,b)) - b
-	if np.max(np.abs(diff)) > tolerance:
-		raise ValueError('System has no solution')
-	return np.dot(Adag,b) + np.dot(I - np.dot(Adag,A), y)
-
 def solveHomogeneousSystem(A, eps=1e-15):
-    u, s, vh = np.linalg.svd(A)
-    null_space = np.compress(s <= eps, vh, axis=0)
-    return null_space.T
-
-def stickinessForFlatDistribution(P):
-	I = np.identity(P.shape[0])
-	s = 0.6
-	one = np.ones([1,P.shape[0]])
-	p = np.dot(one, P)
-	A = (I-P).transpose()
-	b = (one - p).transpose()
-	y = s * one.transpose()
-	d = solveSingularSystem(A,b,y).transpose()
-	return d
+	u, s, vh = np.linalg.svd(A)
+	null_space = np.compress(s <= eps, vh, axis=0)
+	return null_space.T
 
 def testStickiness(n):
 	P = transitionMatrix(n)
 	d = stickinessForFlatDistribution(P)
 	showHeatMap(np.reshape(d,(n,n)))
 
-def stationaryDistribution(P,d):
+def stationaryDistribution(P):
 	I = np.identity(P.shape[0])
-	D = np.diagflat(d)
-	A = (np.dot(I-D, P) + D - I).transpose()
-	return solveHomogeneousSystem(A).transpose()
+	A = (P - I).transpose()
+	b = solveHomogeneousSystem(A).transpose()
+	return b / b.sum()
 
 def testStationaryDistribution(n):
 	P = transitionMatrix(n)
-	d = np.ones([1,n**2])/2
-	x = stationaryDistribution(P,d)
+	x = stationaryDistribution(P)
 	showHeatMap(np.reshape(x,(n,n)))
 
-def checkStickinessSolution(n):
+def stickinessForFlatDistribution(P):
+	one = np.ones([P.shape[0],1])
+	pi = stationaryDistribution(P)
+	return one.transpose() - (1/pi.max()) * pi
+
+def testStickinessSolution(n):
+	I = np.identity(n**2)
 	P = transitionMatrix(n)
+	pi = stationaryDistribution(P)
+	showHeatMap(np.reshape(pi,(n,n)), 'Stationary distribution for transition matrix P')
 	d = stickinessForFlatDistribution(P)
-	x = stationaryDistribution(P,d)
-	showHeatMap(np.reshape(x,(n,n)))
+	showHeatMap(np.reshape(d,(n,n)), 'Stickiness probabilities d for flat distribution')
+	D = np.diagflat(d)
+	M = np.dot(I-D,P) + D
+	mu = stationaryDistribution(M)
+	showHeatMap(np.reshape(mu,(n,n)), 'Distribution for transition matrix with sticking M = (I-D)P + D')
+
+if __name__=='__main__':
+	testStickinessSolution(20)
